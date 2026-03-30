@@ -1,0 +1,1835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swift Plumbing & Heating | Trusted Local Plumbers in Manchester</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   CSS CUSTOM PROPERTIES
+═══════════════════════════════════════════ */
+:root {
+  --navy:        #0a0f1e;
+  --navy-mid:    #111827;
+  --navy-light:  #1e2a3a;
+  --accent:      #f97316;
+  --accent-dim:  #c45e0f;
+  --accent-glow: rgba(249,115,22,0.15);
+  --white:       #ffffff;
+  --grey:        #94a3b8;
+  --card:        #131c2e;
+  --border:      rgba(255,255,255,0.08);
+  --success:     #22c55e;
+  --error:       #ef4444;
+}
+
+/* ═══════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--navy);
+  color: var(--white);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════
+   SCROLL PROGRESS BAR
+═══════════════════════════════════════════ */
+.scroll-progress {
+  position: fixed; top: 72px; left: 0; right: 0; height: 2px;
+  background: var(--accent); transform-origin: left;
+  transform: scaleX(0); z-index: 101;
+  transition: transform 0.1s linear;
+}
+
+/* ═══════════════════════════════════════════
+   STICKY HEADER
+═══════════════════════════════════════════ */
+header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 5%; height: 72px;
+  background: rgba(10,15,30,0.85);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+header.scrolled { background: rgba(10,15,30,0.97); box-shadow: 0 4px 24px rgba(0,0,0,0.3); }
+
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem; letter-spacing: 1px;
+  color: var(--white); text-decoration: none;
+  transition: opacity 0.2s;
+}
+.logo:hover { opacity: 0.85; }
+.logo span { color: var(--accent); }
+.logo-icon {
+  width: 36px; height: 36px; background: var(--accent);
+  border-radius: 8px; display: flex; align-items: center;
+  justify-content: center; font-size: 1.1rem;
+  transition: transform 0.25s;
+}
+.logo:hover .logo-icon { transform: rotate(-8deg); }
+
+/* Desktop nav */
+nav { display: flex; align-items: center; gap: 2rem; }
+nav a {
+  color: var(--grey); text-decoration: none;
+  font-size: 0.875rem; font-weight: 500;
+  transition: color 0.2s; position: relative; padding-bottom: 3px; cursor: pointer;
+}
+nav a::after {
+  content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
+  height: 2px; background: var(--accent);
+  transform: scaleX(0); transform-origin: left; transition: transform 0.25s;
+}
+nav a:hover { color: var(--white); }
+nav a:hover::after, nav a.active::after { transform: scaleX(1); }
+nav a.active { color: var(--white); }
+
+.nav-cta {
+  background: var(--accent) !important; color: var(--white) !important;
+  padding: 0.5rem 1.25rem !important; border-radius: 6px;
+  font-weight: 600 !important; transition: background 0.2s, transform 0.2s, box-shadow 0.2s !important;
+}
+.nav-cta::after { display: none !important; }
+.nav-cta:hover {
+  background: var(--accent-dim) !important; transform: translateY(-1px) !important;
+  box-shadow: 0 4px 16px rgba(249,115,22,0.35) !important;
+}
+.nav-cta:active { transform: translateY(0) !important; }
+
+/* Hamburger */
+.hamburger {
+  display: none; flex-direction: column; gap: 5px;
+  cursor: pointer; padding: 4px; border: none; background: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.hamburger span {
+  width: 24px; height: 2px; background: var(--white);
+  border-radius: 2px; transition: transform 0.3s, opacity 0.3s; display: block;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+nav.open {
+  display: flex; flex-direction: column;
+  position: fixed; top: 72px; left: 0; right: 0;
+  background: var(--navy-mid); padding: 1.5rem 5% 2rem;
+  border-bottom: 1px solid var(--border); z-index: 99; gap: 0;
+  animation: slideDown 0.22s ease;
+}
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+nav.open a {
+  padding: 1rem 0; border-bottom: 1px solid var(--border);
+  font-size: 1rem; min-height: 48px; display: flex; align-items: center;
+}
+nav.open a::after { display: none; }
+nav.open .nav-cta { margin-top: 1rem; justify-content: center; border-radius: 8px; padding: 0.85rem 1.25rem !important; }
+
+/* ═══════════════════════════════════════════
+   SHARED BUTTON STYLES
+═══════════════════════════════════════════ */
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--accent); color: var(--white); text-decoration: none;
+  padding: 0.9rem 2rem; border-radius: 8px;
+  font-weight: 700; font-size: 1rem; font-family: 'Sora', sans-serif;
+  transition: all 0.25s; border: 2px solid var(--accent);
+  cursor: pointer; min-height: 48px;
+}
+.btn-primary:hover {
+  background: var(--accent-dim); border-color: var(--accent-dim);
+  transform: translateY(-2px); box-shadow: 0 8px 30px rgba(249,115,22,0.3);
+}
+.btn-primary:active { transform: translateY(0); box-shadow: none; }
+
+.btn-outline {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: transparent; color: var(--white); text-decoration: none;
+  padding: 0.9rem 2rem; border-radius: 8px;
+  font-weight: 600; font-size: 1rem; font-family: 'Sora', sans-serif;
+  border: 2px solid var(--border); transition: all 0.25s;
+  cursor: pointer; min-height: 48px;
+}
+.btn-outline:hover {
+  border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.05);
+  transform: translateY(-2px);
+}
+.btn-outline:active { transform: translateY(0); }
+
+/* ═══════════════════════════════════════════
+   HERO SECTION
+═══════════════════════════════════════════ */
+.hero {
+  min-height: 100vh; display: flex; align-items: center;
+  padding: 120px 5% 80px; position: relative; overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 65% 50%, rgba(249,115,22,0.12) 0%, transparent 70%),
+    linear-gradient(135deg, #0a0f1e 0%, #111827 100%);
+}
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(var(--border) 1px, transparent 1px),
+                    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
+}
+.hero-content { position: relative; z-index: 2; max-width: 680px; }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--accent-glow); border: 1px solid rgba(249,115,22,0.3);
+  padding: 6px 14px; border-radius: 100px;
+  font-size: 0.78rem; font-weight: 600; color: var(--accent); letter-spacing: 0.5px;
+  margin-bottom: 1.5rem; opacity: 0; transform: translateY(20px);
+  animation: fadeUp 0.7s 0.2s forwards;
+}
+.hero-badge::before { content: '●'; font-size: 0.6rem; }
+
+.hero h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3.2rem, 8vw, 6.5rem);
+  line-height: 0.95; letter-spacing: 1px; margin-bottom: 1.5rem;
+  opacity: 0; transform: translateY(30px);
+  animation: fadeUp 0.8s 0.4s forwards;
+}
+.hero h1 em { color: var(--accent); font-style: normal; }
+
+.hero-content > p {
+  font-size: 1.1rem; color: var(--grey); max-width: 520px;
+  margin-bottom: 2.5rem; font-weight: 300;
+  opacity: 0; transform: translateY(30px);
+  animation: fadeUp 0.8s 0.6s forwards;
+}
+.hero-actions {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+  opacity: 0; transform: translateY(30px);
+  animation: fadeUp 0.8s 0.8s forwards;
+}
+.hero-stats {
+  display: flex; gap: 2.5rem; margin-top: 3.5rem; flex-wrap: wrap;
+  opacity: 0; transform: translateY(30px);
+  animation: fadeUp 0.8s 1s forwards;
+}
+.stat { display: flex; flex-direction: column; }
+.stat strong { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; color: var(--accent); }
+.stat span { font-size: 0.8rem; color: var(--grey); font-weight: 500; }
+
+/* ═══════════════════════════════════════════
+   TRUST BADGES — OWN DEDICATED SECTION
+═══════════════════════════════════════════ */
+.trust-badges-section {
+  background: var(--navy-mid);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 4rem 5%;
+}
+.trust-badges-inner { max-width: 1100px; margin: 0 auto; }
+.trust-badges-header { text-align: center; margin-bottom: 2.5rem; }
+.trust-badges-header .section-label { justify-content: center; }
+
+.trust-badges-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem; max-width: 860px; margin: 0 auto;
+}
+.trust-badge-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 2rem 1.5rem; text-align: center;
+  transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+  position: relative; overflow: hidden;
+}
+.trust-badge-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--accent); transform: scaleX(0); transform-origin: left;
+  transition: transform 0.3s;
+}
+.trust-badge-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(249,115,22,0.3);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+}
+.trust-badge-card:hover::before { transform: scaleX(1); }
+.trust-badge-icon { font-size: 2.6rem; margin-bottom: 0.85rem; display: block; }
+.trust-badge-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.4rem; }
+.trust-badge-card p { font-size: 0.8rem; color: var(--grey); line-height: 1.6; }
+
+/* ═══════════════════════════════════════════
+   TRUST BAR (5-item strip, below badges)
+═══════════════════════════════════════════ */
+.trust-bar {
+  background: rgba(10,15,30,0.6);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 5%;
+  display: flex; align-items: center; justify-content: center;
+  gap: 2.5rem; flex-wrap: wrap;
+}
+.trust-item { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--grey); font-weight: 500; }
+.trust-item strong { color: var(--white); }
+
+/* ═══════════════════════════════════════════
+   SECTION COMMON
+═══════════════════════════════════════════ */
+section { padding: 100px 5%; }
+.section-label {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: var(--accent); font-size: 0.75rem; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1rem;
+}
+.section-label::before { content: ''; width: 24px; height: 2px; background: var(--accent); }
+h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.4rem, 5vw, 3.8rem);
+  line-height: 1; margin-bottom: 1rem; letter-spacing: 0.5px;
+}
+.section-sub { color: var(--grey); font-size: 1rem; max-width: 520px; font-weight: 300; }
+
+/* ═══════════════════════════════════════════
+   SERVICES
+═══════════════════════════════════════════ */
+.services { background: var(--navy-mid); }
+.services-header { text-align: center; margin-bottom: 4rem; }
+.services-header .section-sub { margin: 0 auto; }
+.services-header .section-label { justify-content: center; }
+.services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; max-width: 1100px; margin: 0 auto; }
+
+.service-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 2rem;
+  transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+  position: relative; overflow: hidden; cursor: default;
+}
+.service-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.3s;
+}
+.service-card:hover { transform: translateY(-6px); border-color: rgba(249,115,22,0.25); box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+.service-card:hover::before { transform: scaleX(1); }
+.service-icon {
+  width: 52px; height: 52px; border-radius: 12px;
+  background: var(--accent-glow); border: 1px solid rgba(249,115,22,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; margin-bottom: 1.25rem; transition: transform 0.3s;
+}
+.service-card:hover .service-icon { transform: scale(1.1) rotate(-5deg); }
+.service-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.6rem; }
+.service-card p { color: var(--grey); font-size: 0.875rem; line-height: 1.7; }
+.service-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--accent); font-size: 0.82rem; font-weight: 600;
+  margin-top: 1.25rem; text-decoration: none;
+  transition: gap 0.2s; min-height: 44px; cursor: pointer;
+}
+.service-link:hover { gap: 12px; }
+
+/* ═══════════════════════════════════════════
+   GALLERY / PROJECTS  (photo-based version)
+   — Edit image URLs in the HTML below this CSS
+═══════════════════════════════════════════ */
+
+/* Section wrapper */
+.gallery-section { background: var(--navy); }
+
+/* Header row */
+.gallery-header {
+  display: flex; justify-content: space-between;
+  align-items: flex-end; flex-wrap: wrap; gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+/* Filter pill buttons */
+.gallery-filters {
+  display: flex; gap: 0.5rem; flex-wrap: wrap;
+  align-items: center;
+}
+.filter-btn {
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--grey); font-family: 'Sora', sans-serif;
+  font-size: 0.78rem; font-weight: 600; letter-spacing: 0.3px;
+  padding: 0.45rem 1rem; border-radius: 100px;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  min-height: 36px;
+}
+.filter-btn:hover { border-color: rgba(249,115,22,0.4); color: var(--white); }
+.filter-btn.active {
+  background: var(--accent); border-color: var(--accent);
+  color: var(--white);
+}
+
+/* Masonry-style responsive photo grid */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+/* Span some cards wider for visual variety */
+.gallery-item.wide { grid-column: span 2; }
+
+/* Individual photo card */
+.gallery-item {
+  position: relative; overflow: hidden;
+  border-radius: 12px; cursor: pointer;
+  aspect-ratio: 4/3;
+  background: var(--card);
+  /* scroll-reveal starts invisible */
+  opacity: 0; transform: translateY(28px) scale(0.97);
+  transition:
+    opacity    0.6s ease,
+    transform  0.6s ease,
+    box-shadow 0.35s ease;
+}
+/* Hidden items during filter */
+.gallery-item.hidden {
+  display: none;
+}
+/* Visible after scroll-reveal fires */
+.gallery-item.revealed {
+  opacity: 1; transform: translateY(0) scale(1);
+}
+
+/* The actual photo */
+.gallery-item img {
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center;
+  transition: transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94),
+              filter 0.35s ease;
+  display: block;
+}
+.gallery-item:hover img {
+  transform: scale(1.07);
+  filter: brightness(0.75);
+}
+
+/* Gradient overlay — always present, intensifies on hover */
+.gallery-item::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(
+    180deg,
+    transparent 40%,
+    rgba(10,15,30,0.88) 100%
+  );
+  opacity: 0.7;
+  transition: opacity 0.35s ease;
+}
+.gallery-item:hover::before { opacity: 1; }
+
+/* Caption bar at bottom */
+.gallery-caption {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
+  padding: 1rem 1.2rem 1.1rem;
+  transform: translateY(8px);
+  transition: transform 0.35s ease;
+}
+.gallery-item:hover .gallery-caption { transform: translateY(0); }
+
+.gallery-tag {
+  display: inline-block;
+  background: var(--accent); color: var(--white);
+  font-size: 0.65rem; font-weight: 700;
+  letter-spacing: 0.8px; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 3px;
+  margin-bottom: 0.35rem;
+}
+.gallery-caption h3 {
+  font-family: 'Sora', sans-serif;
+  font-size: 0.92rem; font-weight: 700;
+  line-height: 1.3; margin-bottom: 0.2rem;
+}
+.gallery-caption p {
+  font-size: 0.72rem; color: rgba(255,255,255,0.65);
+  font-weight: 400;
+}
+
+/* Zoom icon appears on hover */
+.gallery-zoom {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.7);
+  z-index: 3;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(249,115,22,0.9);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+.gallery-item:hover .gallery-zoom {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Focus accessibility */
+.gallery-item:focus-visible {
+  outline: 3px solid var(--accent); outline-offset: 3px;
+}
+
+/* CTA row below gallery */
+.gallery-cta {
+  text-align: center; margin-top: 2.5rem;
+}
+.gallery-cta p {
+  color: var(--grey); font-size: 0.9rem; margin-bottom: 1.2rem;
+}
+
+/* ── LIGHTBOX ── */
+.lightbox {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(5, 8, 18, 0.96);
+  backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.lightbox.open { opacity: 1; pointer-events: all; }
+
+.lightbox-inner {
+  position: relative; max-width: min(90vw, 1000px);
+  width: 100%;
+  transform: scale(0.92);
+  transition: transform 0.3s ease;
+}
+.lightbox.open .lightbox-inner { transform: scale(1); }
+
+.lightbox-inner img {
+  width: 100%; border-radius: 12px;
+  display: block; max-height: 80vh; object-fit: contain;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+}
+
+.lightbox-info {
+  margin-top: 1rem; text-align: center;
+}
+.lightbox-info h3 { font-size: 1.1rem; font-weight: 700; }
+.lightbox-info p  { font-size: 0.82rem; color: var(--grey); margin-top: 0.25rem; }
+
+/* Lightbox nav buttons */
+.lb-btn {
+  position: absolute; top: 50%;
+  transform: translateY(-50%);
+  background: rgba(249,115,22,0.85);
+  border: none; color: var(--white);
+  width: 44px; height: 44px; border-radius: 50%;
+  font-size: 1.2rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+  z-index: 10;
+}
+.lb-btn:hover { background: var(--accent); transform: translateY(-50%) scale(1.1); }
+.lb-prev { left: -22px; }
+.lb-next { right: -22px; }
+
+/* Close button */
+.lb-close {
+  position: absolute; top: -44px; right: 0;
+  background: none; border: none; color: var(--white);
+  font-size: 1.6rem; cursor: pointer; padding: 4px 8px;
+  opacity: 0.75; transition: opacity 0.2s, transform 0.2s;
+  line-height: 1;
+}
+.lb-close:hover { opacity: 1; transform: rotate(90deg); }
+
+/* Dot indicator */
+.lb-dots {
+  display: flex; justify-content: center; gap: 6px; margin-top: 1rem;
+}
+.lb-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(255,255,255,0.25); cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  border: none;
+}
+.lb-dot.active { background: var(--accent); transform: scale(1.3); }
+
+/* Image load-error fallback — shows a dark placeholder with label */
+.gallery-item img[data-error],
+.about-img-wrap img[data-error] {
+  opacity: 0;
+}
+.gallery-item.img-error {
+  background: var(--navy-light);
+}
+.gallery-item.img-error::after {
+  content: attr(aria-label);
+  position: absolute; inset: 0; z-index: 5;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--grey); font-size: 0.78rem; text-align: center;
+  padding: 1rem;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+  .gallery-item.wide { grid-column: span 1; }
+  .lb-prev { left: -16px; }
+  .lb-next { right: -16px; }
+}
+@media (max-width: 560px) {
+  .gallery-grid { grid-template-columns: 1fr; gap: 0.85rem; }
+  .gallery-filters { gap: 0.4rem; }
+  .filter-btn { font-size: 0.72rem; padding: 0.4rem 0.85rem; }
+}
+
+/* ═══════════════════════════════════════════
+   TESTIMONIALS
+═══════════════════════════════════════════ */
+.testimonials { background: var(--navy-mid); }
+.testimonials-header { text-align: center; margin-bottom: 4rem; }
+.testimonials-header .section-label { justify-content: center; }
+.testi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; max-width: 1100px; margin: 0 auto; }
+.testi-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 2rem;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+.testi-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.2); border-color: rgba(249,115,22,0.15); }
+.stars { color: var(--accent); font-size: 1rem; margin-bottom: 1rem; letter-spacing: 2px; }
+.testi-text { font-size: 0.92rem; color: #cbd5e1; line-height: 1.75; margin-bottom: 1.5rem; }
+.testi-author { display: flex; align-items: center; gap: 12px; }
+.testi-avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--accent-glow); border: 2px solid rgba(249,115,22,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.9rem; color: var(--accent); flex-shrink: 0;
+}
+.testi-author strong { font-size: 0.875rem; display: block; }
+.testi-author span { font-size: 0.78rem; color: var(--grey); }
+.verified { display: inline-flex; align-items: center; gap: 4px; color: #4ade80; font-size: 0.7rem; font-weight: 600; margin-top: 2px; }
+
+/* ═══════════════════════════════════════════
+   ABOUT
+═══════════════════════════════════════════ */
+.about { overflow: hidden; }
+.about-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; max-width: 1100px; margin: 0 auto; }
+.about-visual { position: relative; }
+.about-img-wrap {
+  border-radius: 16px; overflow: hidden; aspect-ratio: 4/5;
+  background: #0d1525;
+  border: 1px solid var(--border);
+}
+.about-content ul { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; margin: 1.5rem 0 2rem; }
+.about-content li { display: flex; align-items: center; gap: 10px; color: var(--grey); font-size: 0.9rem; }
+.about-content li::before { content: '✓'; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+.about-badges { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; }
+.badge {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 14px;
+  font-size: 0.78rem; font-weight: 600; color: var(--grey);
+  transition: border-color 0.2s, color 0.2s;
+}
+.badge:hover { border-color: rgba(249,115,22,0.4); color: var(--white); }
+
+/* ═══════════════════════════════════════════
+   CONTACT
+═══════════════════════════════════════════ */
+.contact { background: var(--navy-mid); }
+.contact-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; max-width: 1100px; margin: 0 auto; }
+.contact-info h2 { margin-bottom: 1rem; }
+.contact-info > p { color: var(--grey); font-size: 0.9rem; margin-bottom: 2rem; }
+
+/* Phone banner — fully clickable */
+.phone-banner {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;
+  background: var(--accent); border-radius: 12px; padding: 1.25rem 1.75rem;
+  margin-bottom: 2rem; text-decoration: none; cursor: pointer;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.phone-banner:hover { background: var(--accent-dim); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(249,115,22,0.3); }
+.phone-banner:active { transform: translateY(0); }
+.phone-banner strong { font-family: 'Bebas Neue'; font-size: 1.4rem; letter-spacing: 1px; color: var(--white); }
+.phone-banner span { color: var(--white); font-size: 1.25rem; font-weight: 700; }
+
+.contact-methods { display: flex; flex-direction: column; gap: 1rem; }
+.contact-method {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 1rem 1.25rem;
+  text-decoration: none; color: var(--white);
+  transition: border-color 0.2s, transform 0.2s, background 0.2s;
+  min-height: 60px; cursor: pointer;
+}
+.contact-method:hover { border-color: rgba(249,115,22,0.3); transform: translateX(6px); background: rgba(249,115,22,0.04); }
+.cm-icon { font-size: 1.4rem; flex-shrink: 0; }
+.cm-text strong { display: block; font-size: 0.875rem; }
+.cm-text span { color: var(--grey); font-size: 0.78rem; }
+
+/* Form card */
+.form-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
+.form-card h3 { margin-bottom: 1.5rem; font-size: 1.15rem; }
+.contact-form { display: flex; flex-direction: column; gap: 1rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+label { font-size: 0.8rem; font-weight: 600; color: var(--grey); }
+
+input, textarea, select {
+  background: var(--navy-mid); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 0.8rem 1rem;
+  color: var(--white); font-family: 'Sora', sans-serif; font-size: 0.875rem;
+  transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+  width: 100%; min-height: 44px;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--accent); box-shadow: 0 0 0 3px rgba(249,115,22,0.12);
+}
+input.invalid, textarea.invalid, select.invalid {
+  border-color: var(--error); box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
+}
+.field-err { font-size: 0.72rem; color: var(--error); font-weight: 600; display: none; margin-top: 2px; }
+.field-err.show { display: block; }
+textarea { resize: vertical; min-height: 120px; }
+select option { background: var(--card); }
+
+.form-submit {
+  background: var(--accent); color: var(--white);
+  border: none; border-radius: 8px; padding: 1rem 2rem;
+  font-weight: 700; font-size: 1rem; font-family: 'Sora', sans-serif;
+  cursor: pointer; min-height: 52px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: background 0.25s, transform 0.25s, box-shadow 0.25s;
+}
+.form-submit:hover { background: var(--accent-dim); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(249,115,22,0.25); }
+.form-submit:active { transform: translateY(0); }
+.form-submit:disabled { opacity: 0.65; cursor: not-allowed; transform: none !important; }
+.form-note { font-size: 0.75rem; color: var(--grey); text-align: center; }
+
+#formSuccess { display: none; text-align: center; padding: 2rem 0; animation: fadeUp 0.5s ease; }
+
+/* ═══════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════ */
+footer { background: #060b15; border-top: 1px solid var(--border); padding: 3rem 5% 2rem; }
+.footer-inner { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 3rem; max-width: 1100px; margin: 0 auto 2.5rem; }
+.footer-brand p { color: var(--grey); font-size: 0.85rem; margin-top: 1rem; max-width: 280px; line-height: 1.7; }
+.footer-col h4 { font-size: 0.82rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--grey); margin-bottom: 1rem; }
+.footer-col a {
+  display: flex; align-items: center; color: #64748b;
+  text-decoration: none; font-size: 0.85rem; margin-bottom: 0.5rem;
+  transition: color 0.2s, transform 0.2s; min-height: 32px;
+}
+.footer-col a:hover { color: var(--white); transform: translateX(4px); }
+.footer-bottom {
+  border-top: 1px solid var(--border); padding-top: 1.5rem;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+  max-width: 1100px; margin: 0 auto;
+}
+.footer-bottom p { font-size: 0.78rem; color: #475569; }
+.footer-accreditations { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.accred {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 6px; padding: 4px 10px;
+  font-size: 0.7rem; font-weight: 700; color: var(--grey);
+  cursor: default; transition: border-color 0.2s, color 0.2s;
+}
+.accred:hover { border-color: rgba(249,115,22,0.4); color: var(--white); }
+
+/* ═══════════════════════════════════════════
+   FLOATING CTA BUTTONS
+═══════════════════════════════════════════ */
+.floating-cta {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 200;
+  display: flex; flex-direction: column; gap: 0.65rem; align-items: flex-end;
+  transition: opacity 0.3s, transform 0.3s;
+}
+.floating-cta.hidden { opacity: 0; pointer-events: none; transform: translateY(10px); }
+
+.float-btn {
+  display: inline-flex; align-items: center; gap: 9px;
+  background: var(--accent); color: var(--white); text-decoration: none;
+  padding: 0.75rem 1.4rem; border-radius: 100px;
+  font-weight: 700; font-size: 0.875rem;
+  box-shadow: 0 6px 24px rgba(249,115,22,0.4);
+  transition: all 0.25s; white-space: nowrap; min-height: 48px;
+  animation: floatPulse 2.5s ease-in-out infinite;
+}
+.float-btn:hover { background: var(--accent-dim); transform: translateY(-3px); box-shadow: 0 10px 36px rgba(249,115,22,0.5); animation: none; }
+.float-btn:active { transform: translateY(-1px); }
+
+.float-btn-secondary {
+  background: var(--navy-mid); border: 1px solid var(--border);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3); animation: none;
+}
+.float-btn-secondary:hover { background: var(--navy-light); border-color: rgba(255,255,255,0.2); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+
+@keyframes floatPulse {
+  0%, 100% { box-shadow: 0 6px 24px rgba(249,115,22,0.4); }
+  50%       { box-shadow: 0 6px 36px rgba(249,115,22,0.7); }
+}
+
+/* ═══════════════════════════════════════════
+   TOAST NOTIFICATION
+═══════════════════════════════════════════ */
+.toast {
+  position: fixed; bottom: 6rem; left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--success); color: var(--white);
+  padding: 0.8rem 1.5rem; border-radius: 10px;
+  font-size: 0.875rem; font-weight: 600;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s; z-index: 999;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.toast-error { background: var(--error); }
+
+/* ═══════════════════════════════════════════
+   SCROLL ANIMATIONS
+═══════════════════════════════════════════ */
+@keyframes fadeUp { to { opacity: 1; transform: none; } }
+.reveal       { opacity: 0; transform: translateY(40px);  transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal-left  { opacity: 0; transform: translateX(-40px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal-right { opacity: 0; transform: translateX(40px);  transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible, .reveal-left.visible, .reveal-right.visible { opacity: 1; transform: none; }
+.stagger-1 { transition-delay: 0.1s !important; }
+.stagger-2 { transition-delay: 0.2s !important; }
+.stagger-3 { transition-delay: 0.3s !important; }
+.stagger-4 { transition-delay: 0.4s !important; }
+.stagger-5 { transition-delay: 0.5s !important; }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media (max-width: 900px) {
+  nav { display: none; }
+  .hamburger { display: flex; }
+  .about-inner, .contact-inner { grid-template-columns: 1fr; gap: 3rem; }
+  .projects-grid { grid-template-columns: 1fr 1fr; }
+  .footer-inner { grid-template-columns: 1fr 1fr; }
+  .trust-badges-grid { grid-template-columns: 1fr; max-width: 440px; }
+  .about-accent-box { right: 0; }
+}
+@media (max-width: 600px) {
+  section { padding: 70px 5%; }
+  .hero { padding: 100px 5% 60px; }
+  .projects-grid { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .trust-bar { gap: 1rem; }
+  .footer-inner { grid-template-columns: 1fr; }
+  .float-btn .label { display: none; }
+  .float-btn { padding: 0.85rem; border-radius: 50%; gap: 0; }
+  .float-btn-secondary { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- SCROLL PROGRESS -->
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- ══════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════ -->
+<header id="header">
+  <a href="#home" class="logo" aria-label="Go to top">
+    <div class="logo-icon" aria-hidden="true">🔧</div>
+    Swift<span>Plumb</span>
+  </a>
+
+  <nav id="nav" role="navigation" aria-label="Main navigation">
+    <a href="#services"      data-section="services">Services</a>
+    <a href="#projects"      data-section="projects">Projects</a>
+    <a href="#testimonials"  data-section="testimonials">Reviews</a>
+    <a href="#about"         data-section="about">About</a>
+    <a href="#contact"       data-section="contact" class="nav-cta">Get a Quote</a>
+  </nav>
+
+  <button class="hamburger" id="hamburger" aria-label="Toggle navigation menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<!-- ══════════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<section class="hero" id="home">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="hero-content">
+    <div class="hero-badge">⚡ Available 24/7 · Emergency Call-Outs Welcome</div>
+    <h1>Trusted Local <em>Plumbers</em><br>in Manchester</h1>
+    <p>Professional, reliable plumbing and heating services for homes and businesses across Greater Manchester. Gas Safe registered. No call-out fee.</p>
+    <div class="hero-actions">
+      <a href="tel:01612345678" class="btn-primary" aria-label="Call us now on 0161 234 5678">📞 Call 0161 234 5678</a>
+      <a href="#contact" class="btn-outline">Free Quote →</a>
+    </div>
+    <div class="hero-stats" aria-label="Our track record">
+      <div class="stat"><strong id="statYears">0</strong><span>Years Experience</span></div>
+      <div class="stat"><strong id="statCustomers">0</strong><span>Happy Customers</span></div>
+      <div class="stat"><strong>4.9★</strong><span>Google Rating</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     TRUST BADGES — DEDICATED SECTION
+══════════════════════════════════════════ -->
+<section class="trust-badges-section" id="accreditations" aria-labelledby="accred-heading">
+  <div class="trust-badges-inner">
+    <div class="trust-badges-header reveal">
+      <div class="section-label" style="justify-content:center;">Why Choose Us</div>
+      <h2 id="accred-heading" style="text-align:center;">Our Accreditations</h2>
+      <p class="section-sub" style="margin:0 auto;text-align:center;">Independently vetted, certified, and trusted by thousands of Manchester homeowners.</p>
+    </div>
+    <div class="trust-badges-grid">
+      <div class="trust-badge-card reveal stagger-1">
+        <span class="trust-badge-icon" aria-hidden="true">✅</span>
+        <h3>Gas Safe Registered</h3>
+        <p>All our engineers hold valid Gas Safe certification. Verify us online — Reg. No. 548821. Legal, safe, guaranteed.</p>
+      </div>
+      <div class="trust-badge-card reveal stagger-2">
+        <span class="trust-badge-icon" aria-hidden="true">🏆</span>
+        <h3>Which? Trusted Trader</h3>
+        <p>Independently vetted and approved by the UK's leading consumer champion. Read our verified reviews on their platform.</p>
+      </div>
+      <div class="trust-badge-card reveal stagger-3">
+        <span class="trust-badge-icon" aria-hidden="true">⚡</span>
+        <h3>Same-Day Service</h3>
+        <p>For most jobs we dispatch an engineer the same day. Emergency call-outs attended within 2 hours — any time, any day.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     TRUST BAR (5-item strip)
+══════════════════════════════════════════ -->
+<div class="trust-bar" role="list" aria-label="Quick trust indicators">
+  <div class="trust-item" role="listitem">⭐ <strong>4.9/5</strong>&nbsp;on Google (247 reviews)</div>
+  <div class="trust-item" role="listitem">🔒 <strong>Fully Insured</strong>&nbsp;& Gas Safe</div>
+  <div class="trust-item" role="listitem">📍 <strong>Manchester</strong>&nbsp;& Surrounding Areas</div>
+  <div class="trust-item" role="listitem">⏱️ <strong>Same Day</strong>&nbsp;Response</div>
+  <div class="trust-item" role="listitem">💷 <strong>No Hidden</strong>&nbsp;Charges</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SERVICES
+══════════════════════════════════════════ -->
+<section class="services" id="services" aria-labelledby="services-heading">
+  <div class="services-header reveal">
+    <div class="section-label">What We Do</div>
+    <h2 id="services-heading">Our Services</h2>
+    <p class="section-sub">From emergency repairs to full installations — fast, affordable, professional workmanship.</p>
+  </div>
+  <div class="services-grid">
+    <div class="service-card reveal stagger-1">
+      <div class="service-icon" aria-hidden="true">🚿</div>
+      <h3>Boiler Installation & Repair</h3>
+      <p>Supply, install and service all major boiler brands. Emergency repairs within hours. Annual servicing packages available.</p>
+      <a href="#contact" class="service-link">Book Now →</a>
+    </div>
+    <div class="service-card reveal stagger-2">
+      <div class="service-icon" aria-hidden="true">💧</div>
+      <h3>Leak Detection & Repair</h3>
+      <p>Advanced leak detection with minimal disruption. We trace even hidden leaks behind walls and under floors.</p>
+      <a href="#contact" class="service-link">Book Now →</a>
+    </div>
+    <div class="service-card reveal stagger-3">
+      <div class="service-icon" aria-hidden="true">🏠</div>
+      <h3>Bathroom Installations</h3>
+      <p>Full bathroom fit-outs from design to finish. Wet rooms, en-suites, walk-in showers and full suite replacements.</p>
+      <a href="#contact" class="service-link">Book Now →</a>
+    </div>
+    <div class="service-card reveal stagger-4">
+      <div class="service-icon" aria-hidden="true">🔥</div>
+      <h3>Central Heating Systems</h3>
+      <p>New system installations, power flushing, radiator replacements and full central heating upgrades.</p>
+      <a href="#contact" class="service-link">Book Now →</a>
+    </div>
+    <div class="service-card reveal stagger-5">
+      <div class="service-icon" aria-hidden="true">🚨</div>
+      <h3>24/7 Emergency Plumbing</h3>
+      <p>Burst pipes, blocked drains, no hot water — we respond fast, any time of day or night, including bank holidays.</p>
+      <a href="tel:01612345678" class="service-link">Call Now →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     GALLERY / PROJECTS — Photo Grid
+     Images: Unsplash (free to use for demos)
+     To swap images: edit the src="" URLs below.
+     Each item has data-category for filter tabs.
+══════════════════════════════════════════ -->
+<section class="gallery-section" id="projects" aria-labelledby="projects-heading" style="padding:100px 5%;">
+
+  <!-- Section header + filter buttons -->
+  <div class="gallery-header">
+    <div>
+      <div class="section-label reveal">Completed Projects</div>
+      <h2 id="projects-heading" class="reveal">Our Work in Action</h2>
+      <p class="section-sub reveal" style="margin-top:0.5rem;">
+        Real jobs, real results — delivered for homeowners and businesses across Greater Manchester.
+      </p>
+    </div>
+    <!-- Filter pills — JS handles show/hide -->
+    <div class="gallery-filters reveal" role="group" aria-label="Filter projects by category">
+      <button class="filter-btn active" data-filter="all"   aria-pressed="true">All Work</button>
+      <button class="filter-btn"        data-filter="bathroom" aria-pressed="false">Bathrooms</button>
+      <button class="filter-btn"        data-filter="heating"  aria-pressed="false">Heating</button>
+      <button class="filter-btn"        data-filter="pipes"    aria-pressed="false">Pipework</button>
+      <button class="filter-btn"        data-filter="emergency" aria-pressed="false">Emergency</button>
+    </div>
+  </div>
+
+  <!-- ── PHOTO GRID ──
+       Add/remove .wide to give a card double width.
+       Unsplash URLs: ?w=800&q=80 keeps files light.
+       Replace src values with your own photos when going live.
+  ── -->
+  <div class="gallery-grid" id="galleryGrid">
+
+    <!-- 1: Bathroom renovation — wide card -->
+    <div class="gallery-item wide"
+         data-category="bathroom"
+         data-title="Full En-Suite Renovation"
+         data-desc="Chorlton, Manchester · Completed in 4 days"
+         data-tag="Bathroom Fit-Out"
+         tabindex="0" role="button" aria-label="View: Full En-Suite Renovation">
+      <img src="https://images.pexels.com/photos/1454804/pexels-photo-1454804.jpeg?auto=compress&cs=tinysrgb&w=900&q=80"
+           alt="Sleek contemporary bathroom with bathtub and twin sinks"
+           loading="lazy" crossorigin="anonymous">
+      <div class="gallery-zoom" aria-hidden="true">🔍</div>
+      <div class="gallery-caption">
+        <span class="gallery-tag">Bathroom Fit-Out</span>
+        <h3>Full En-Suite Renovation</h3>
+        <p>Chorlton · Completed in 4 days</p>
+      </div>
+    </div>
+
+    <!-- 2: Boiler install -->
+    <div class="gallery-item"
+         data-category="heating"
+         data-title="Worcester Bosch Boiler Install"
+         data-desc="Didsbury, Manchester · 1-day installation"
+         data-tag="Boiler Install"
+         tabindex="0" role="button" aria-label="View: Boiler Installation">
+      <img src="https://images.pexels.com/photos/2988865/pexels-photo-2988865.jpeg?auto=compress&cs=tinysrgb&w=900&q=80"
+           alt="Elegant white bathroom with glass shower and patterned floor"
+           loading="lazy">
+      <div class="gallery-zoom" aria-hidden="true">🔍</div>
+      <div class="gallery-caption">
+        <span class="gallery-tag">Boiler Install</span>
+        <h3>Worcester Bosch A-Rated Install</h3>
+        <p>Didsbury · 1-day installation</p>
+      </div>
+    </div>
+
+    <!-- 3: Copper pipework -->
+    <div class="gallery-item"
+         data-category="pipes"
+         data-title="Copper Pipe Installation"
+         data-desc="Salford · New build fit-out"
+         data-tag="Pipework"
+         tabindex="0" role="button" aria-label="View: Copper Pipe Installation">
+      <img src="https://images.pexels.com/photos/5825561/pexels-photo-5825561.jpeg?auto=compress&cs=tinysrgb&w=900&q=80"
+           alt="Minimalist bathroom with white shower curtain and tiled floor"
+           loading="lazy">
+      <div class="gallery-zoom" aria-hidden="true">🔍</div>
+      <div class="gallery-caption">
+        <span class="gallery-tag">Pipework</span>
+        <h3>Copper Pipe Installation</h3>
+        <p>Salford · New build fit-out</p>
+      </div>
+    </div>
+
+    <!-- 4: Walk-in shower -->
+    <div class="gallery-item"
+         data-category="bathroom"
+         data-title="Walk-In Shower Wet Room"
+         data-desc="Sale · Disability adaptation"
+         data-tag="Wet Room"
+         tabindex="0" role="button" aria-label="View: Walk-In Shower Wet Room">
+      <img src="https://images.pexels.com/photos/6316060/pexels-photo-6316060.jpeg?auto=compress&cs=tinysrgb&w=900&q=80"
+           alt="Stylish bathroom with black tiles and glass shower unit"
+           loading="lazy">
+      <div class="gallery-zoom" aria-hidden="true">🔍</div>
+      <div class="gallery-caption">
+        <span class="gallery-tag">Wet Room</span>
+        <h3>Walk-In Shower Wet Room</h3>
+        <p>Sale · Disability adaptation</p>
+      </div>
+    </div>
+
+    <!-- 5: Emergency pipe repair — wide card -->
+    <div class="gallery-item wide"
+         data-category="emergency"
+         data-title="Emergency Burst Pipe Repair"
+         data-desc="Trafford · Resolved within 90 minutes"
+         data-tag="Emergency"
+         tabindex="0" role="button" aria-label="View: Emergency Burst Pipe Repair">
+      <img src="https://images.pexels.com/photos/6920614/pexels-photo-6920614.jpeg?auto=compress&cs=tinysrgb&w=900&q=80"
+           alt="Luxurious bathroom with marble walls and vessel sink"
+           loading="lazy">
+      <div class="gallery-zoom" aria-hidden="true">🔍</div>
+      <div class="gallery-caption">
+        <span class="gallery-tag">Emergency</span>
+        <h3>Emergency Burst Pipe Repair</h3>
+        <p>Trafford · Resolved within 90 minutes</p>
+      </div>
+    </div>
+
+    <!-- 6: Radiator / central heating -->
+    <div class="gallery-item"
+         data-category="heating"
+         data-title="Central Heating Upgrade"
+         data-desc="Stockport · 12 new radiators fitted"
+         data-tag="Heating"
+         tabindex="0" role="button" aria-label="View: Central Heating Upgrade">
+      <img src="https://images.pexels.com/photos/7045358/pexels-photo-7045358.jpeg?auto=compress&cs=tinysrgb&w=900&q=80"
+           alt="Modern bathroom with wooden accents and sleek fixtures"
+           loading="lazy">
+      <div class="gallery-zoom" aria-hidden="true">🔍</div>
+      <div class="gallery-caption">
+        <span class="gallery-tag">Heating</span>
+        <h3>Central Heating Upgrade</h3>
+        <p>Stockport · 12 new radiators fitted</p>
+      </div>
+    </div>
+
+    <!-- 7: Chrome tap / basin -->
+    <div class="gallery-item"
+         data-category="bathroom"
+         data-title="Basin & Tap Replacement"
+         data-desc="Didsbury · Same-day fit"
+         data-tag="Bathroom"
+         tabindex="0" role="button" aria-label="View: Basin and Tap Replacement">
+      <img src="https://images.pexels.com/photos/5825579/pexels-photo-5825579.jpeg?auto=compress&cs=tinysrgb&w=900&q=80"
+           alt="Chrome tap running over a white ceramic basin"
+           loading="lazy">
+      <div class="gallery-zoom" aria-hidden="true">🔍</div>
+      <div class="gallery-caption">
+        <span class="gallery-tag">Bathroom</span>
+        <h3>Basin & Tap Replacement</h3>
+        <p>Didsbury · Same-day fit</p>
+      </div>
+    </div>
+
+    <!-- 8: Under-sink / waste pipe -->
+    <div class="gallery-item"
+         data-category="pipes"
+         data-title="Under-Sink Waste Pipe Reroute"
+         data-desc="Chorlton · Kitchen refit support"
+         data-tag="Pipework"
+         tabindex="0" role="button" aria-label="View: Under-Sink Pipe Reroute">
+      <img src="https://images.pexels.com/photos/7166635/pexels-photo-7166635.jpeg?auto=compress&cs=tinysrgb&w=900&q=80"
+           alt="Plumber tightening waste pipe fittings beneath a kitchen sink during a refit"
+           loading="lazy">
+      <div class="gallery-zoom" aria-hidden="true">🔍</div>
+      <div class="gallery-caption">
+        <span class="gallery-tag">Pipework</span>
+        <h3>Under-Sink Pipe Reroute</h3>
+        <p>Chorlton · Kitchen refit support</p>
+      </div>
+    </div>
+
+  </div><!-- /gallery-grid -->
+
+  <!-- CTA row -->
+  <div class="gallery-cta reveal">
+    <p>Got a project in mind? We'd love to help.</p>
+    <a href="#contact" class="btn-primary">Get a Free Quote →</a>
+  </div>
+
+</section>
+
+<!-- ══════════════════════════════════════════
+     LIGHTBOX (shared, populated by JS)
+══════════════════════════════════════════ -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview" aria-hidden="true">
+  <div class="lightbox-inner">
+    <button class="lb-close" id="lbClose" aria-label="Close image preview">✕</button>
+    <button class="lb-btn lb-prev" id="lbPrev" aria-label="Previous image">‹</button>
+    <button class="lb-btn lb-next" id="lbNext" aria-label="Next image">›</button>
+    <img id="lbImg" src="" alt="">
+    <div class="lightbox-info">
+      <h3 id="lbTitle"></h3>
+      <p  id="lbDesc"></p>
+    </div>
+    <div class="lb-dots" id="lbDots" aria-hidden="true"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TESTIMONIALS
+══════════════════════════════════════════ -->
+<section class="testimonials" id="testimonials" aria-labelledby="testi-heading">
+  <div class="testimonials-header reveal">
+    <div class="section-label">Customer Reviews</div>
+    <h2 id="testi-heading">What Our Customers Say</h2>
+    <p class="section-sub">Over 1,400 happy customers — don't just take our word for it.</p>
+  </div>
+  <div class="testi-grid">
+    <article class="testi-card reveal stagger-1">
+      <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+      <p class="testi-text">"Our boiler packed in on a Sunday evening in January. Swift Plumbing had an engineer with us by 9pm. Fixed first visit, incredibly professional, and the price was fair. Couldn't ask for more."</p>
+      <div class="testi-author">
+        <div class="testi-avatar" aria-hidden="true">SC</div>
+        <div><strong>Sarah C.</strong><span>Didsbury, Manchester</span><div class="verified">✓ Verified Google Review</div></div>
+      </div>
+    </article>
+    <article class="testi-card reveal stagger-2">
+      <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+      <p class="testi-text">"Had a full bathroom installed — walk-in shower, new toilet, the works. Lads were on time every day, left everywhere spotless, and the finish is absolutely brilliant. Highly recommend."</p>
+      <div class="testi-author">
+        <div class="testi-avatar" aria-hidden="true">MR</div>
+        <div><strong>Mark R.</strong><span>Chorlton-cum-Hardy</span><div class="verified">✓ Verified Google Review</div></div>
+      </div>
+    </article>
+    <article class="testi-card reveal stagger-3">
+      <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+      <p class="testi-text">"Used Swift for our annual boiler service and they spotted a gas leak we had no idea about. Sorted same day. These guys are thorough, honest, and genuinely keep you safe. 10/10."</p>
+      <div class="testi-author">
+        <div class="testi-avatar" aria-hidden="true">PW</div>
+        <div><strong>Priya W.</strong><span>Stockport</span><div class="verified">✓ Verified Google Review</div></div>
+      </div>
+    </article>
+    <article class="testi-card reveal stagger-1">
+      <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+      <p class="testi-text">"Discovered a hidden leak in our kitchen wall on a Friday. Called Swift and they came out Saturday morning. Traced it, fixed it, replastered. Absolute lifesavers. Will not use anyone else now."</p>
+      <div class="testi-author">
+        <div class="testi-avatar" aria-hidden="true">JT</div>
+        <div><strong>James T.</strong><span>Sale, Trafford</span><div class="verified">✓ Verified Which? Review</div></div>
+      </div>
+    </article>
+    <article class="testi-card reveal stagger-2">
+      <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+      <p class="testi-text">"We've used Swift for three separate jobs now — always on time, always tidy, always explain everything upfront. The quote they give is the price you pay. No nasty surprises. Brilliant service."</p>
+      <div class="testi-author">
+        <div class="testi-avatar" aria-hidden="true">LB</div>
+        <div><strong>Lucy B.</strong><span>Salford</span><div class="verified">✓ Verified Google Review</div></div>
+      </div>
+    </article>
+    <article class="testi-card reveal stagger-3">
+      <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+      <p class="testi-text">"As a landlord with 6 properties I need reliability. Swift handles all my plumbing — from tenant emergencies to full fit-outs. Response time is outstanding and the work is always top quality."</p>
+      <div class="testi-author">
+        <div class="testi-avatar" aria-hidden="true">DN</div>
+        <div><strong>David N.</strong><span>Property Landlord, Manchester</span><div class="verified">✓ Verified Checkatrade</div></div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     ABOUT
+══════════════════════════════════════════ -->
+<section class="about" id="about" aria-labelledby="about-heading">
+  <div class="about-inner">
+    <div class="about-visual reveal-left">
+      <div class="about-img-wrap" style="font-size:0;background:#0d1525;">
+        <img
+          src="https://images.pexels.com/photos/19846350/pexels-photo-19846350.jpeg?auto=compress&cs=tinysrgb&w=900&q=80"
+          alt="Contemporary bathroom with glass shower and wood vanity"
+          style="width:100%;height:100%;object-fit:cover;object-position:center;border-radius:16px;display:block;">
+      </div>
+    </div>
+    <div class="about-content reveal-right">
+      <div class="section-label">About Us</div>
+      <h2 id="about-heading">Manchester's Most Trusted Plumbers</h2>
+      <p class="section-sub">Founded in 2012, Swift Plumbing & Heating has built its reputation on honest pricing, quality workmanship, and showing up when we say we will.</p>
+      <ul>
+        <li>Gas Safe Registered (Reg. No. 548821)</li>
+        <li>Which? Trusted Trader — verified reviews</li>
+        <li>Checkatrade accredited — 5-star rated</li>
+        <li>£2 million public liability insurance</li>
+        <li>Free, no-obligation quotes — no call-out fee</li>
+        <li>Clean, uniformed, DBS-checked engineers</li>
+      </ul>
+      <div class="about-badges">
+        <span class="badge">⛽ Gas Safe</span>
+        <span class="badge">🏆 Which? Trusted</span>
+        <span class="badge">✅ Checkatrade</span>
+        <span class="badge">🛡️ CIPHE Member</span>
+      </div>
+      <a href="#contact" class="btn-primary" style="margin-top:2rem;">Get Your Free Quote →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     CONTACT
+══════════════════════════════════════════ -->
+<section class="contact" id="contact" aria-labelledby="contact-heading">
+  <div class="contact-inner">
+
+    <!-- Left column -->
+    <div class="contact-info reveal-left">
+      <div class="section-label">Get In Touch</div>
+      <h2 id="contact-heading">Get Your Free Quote Today</h2>
+      <p>Whether it's an emergency, a planned job, or just a question — call us or fill in the form and we'll get back to you within the hour.</p>
+
+      <!-- Clickable emergency phone banner -->
+      <a href="tel:01612345678" class="phone-banner" aria-label="Call us now for emergency plumbing">
+        <strong>📞 Emergency? Call Now</strong>
+        <span>0161 234 5678</span>
+      </a>
+
+      <div class="contact-methods">
+        <a href="tel:01612345678" class="contact-method" aria-label="Call 0161 234 5678">
+          <span class="cm-icon" aria-hidden="true">📞</span>
+          <div class="cm-text">
+            <strong>0161 234 5678</strong>
+            <span>Mon–Fri 7am–8pm · Sat 8am–6pm · 24/7 Emergencies</span>
+          </div>
+        </a>
+        <a href="/cdn-cgi/l/email-protection#e58d8089898aa596928c839195899088878c8b82cb868acb908e" class="contact-method" aria-label="Email hello@swiftplumbing.co.uk">
+          <span class="cm-icon" aria-hidden="true">✉️</span>
+          <div class="cm-text">
+            <strong><span class="__cf_email__" data-cfemail="2c44494040436c5f5b454a585c4059414e45424b024f43025947">[email&#160;protected]</span></strong>
+            <span>We reply within 2 hours during business hours</span>
+          </div>
+        </a>
+        <a href="https://maps.google.com/?q=Manchester+UK" target="_blank" rel="noopener noreferrer" class="contact-method" aria-label="View Manchester on Google Maps (opens in new tab)">
+          <span class="cm-icon" aria-hidden="true">📍</span>
+          <div class="cm-text">
+            <strong>Based in Manchester</strong>
+            <span>Covering M1–M90, Salford, Trafford, Stockport & more ↗</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Right column: form -->
+    <div class="reveal-right">
+      <div class="form-card">
+        <h3>Request a Free Quote</h3>
+
+        <div class="contact-form" id="contactForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="firstName">First Name *</label>
+              <input type="text" id="firstName" name="firstName" placeholder="John" autocomplete="given-name">
+              <span class="field-err" id="err-firstName">Please enter your first name</span>
+            </div>
+            <div class="form-group">
+              <label for="lastName">Last Name *</label>
+              <input type="text" id="lastName" name="lastName" placeholder="Smith" autocomplete="family-name">
+              <span class="field-err" id="err-lastName">Please enter your last name</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone Number *</label>
+            <input type="tel" id="phone" name="phone" placeholder="07700 000000" autocomplete="tel">
+            <span class="field-err" id="err-phone">Please enter a valid phone number</span>
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="john@example.com" autocomplete="email">
+            <span class="field-err" id="err-email">Please enter a valid email address</span>
+          </div>
+          <div class="form-group">
+            <label for="service">Service Required *</label>
+            <select id="service" name="service">
+              <option value="">— Select a service —</option>
+              <option value="boiler">Boiler Installation or Repair</option>
+              <option value="leak">Leak Detection & Repair</option>
+              <option value="bathroom">Bathroom Installation</option>
+              <option value="heating">Central Heating System</option>
+              <option value="emergency">Emergency Plumbing</option>
+              <option value="other">Other / Not Sure</option>
+            </select>
+            <span class="field-err" id="err-service">Please select the service you need</span>
+          </div>
+          <div class="form-group">
+            <label for="message">Tell us about your job</label>
+            <textarea id="message" name="message" placeholder="Describe what you need help with — include details like the age of your boiler, location of the issue, etc."></textarea>
+          </div>
+
+          <button type="button" class="form-submit" id="submitBtn" onclick="handleFormSubmit()">
+            <span id="btnText">Send My Request ➜</span>
+          </button>
+          <p class="form-note">🔒 Your details are safe. We never share your information.</p>
+        </div>
+
+        <!-- Success state (hidden until form submitted) -->
+        <div id="formSuccess" style="display:none; text-align:center; padding:2rem 0;">
+          <div style="font-size:3.5rem; margin-bottom:1rem;">✅</div>
+          <h3 style="margin-bottom:0.6rem;">Request Received!</h3>
+          <p style="color:var(--grey); font-size:0.9rem; line-height:1.7;">
+            We'll call you back within the hour during business hours.<br>
+            For emergencies, call us directly on
+            <a href="tel:01612345678" style="color:var(--accent); font-weight:700; text-decoration:none;">0161 234 5678</a>.
+          </p>
+          <button onclick="resetForm()" class="btn-outline" style="margin-top:1.5rem; font-size:0.875rem; padding:0.65rem 1.5rem; min-height:44px;">
+            Submit Another Request
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════ -->
+<footer role="contentinfo">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="#home" class="logo" aria-label="Back to top">
+        <div class="logo-icon" aria-hidden="true">🔧</div>
+        Swift<span>Plumb</span>
+      </a>
+      <p>Professional plumbing and heating services across Greater Manchester since 2012. Gas Safe registered, fully insured, and genuinely local.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <a href="#services">Boiler Repair & Install</a>
+      <a href="#services">Leak Detection</a>
+      <a href="#services">Bathroom Fitting</a>
+      <a href="#services">Central Heating</a>
+      <a href="#services">Emergency Plumbing</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="#about">About Us</a>
+      <a href="#projects">Our Work</a>
+      <a href="#testimonials">Reviews</a>
+      <a href="#contact">Get a Quote</a>
+      <a href="https://www.example.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy ↗</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Swift Plumbing & Heating Ltd · Registered in England & Wales · Company No. 09123456</p>
+    <div class="footer-accreditations">
+      <span class="accred">Gas Safe ✓</span>
+      <span class="accred">Which? Trusted ✓</span>
+      <span class="accred">Checkatrade ✓</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════════════════════════════════════
+     FLOATING CALL / QUOTE BUTTONS
+══════════════════════════════════════════ -->
+<div class="floating-cta" id="floatingCta" aria-label="Quick action buttons">
+  <a href="#contact" class="float-btn float-btn-secondary" aria-label="Get a free quote">
+    📋 <span class="label">Free Quote</span>
+  </a>
+  <a href="tel:01612345678" class="float-btn" aria-label="Call us now">
+    📞 <span class="label">Call Now</span>
+  </a>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast" role="alert" aria-live="assertive"></div>
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT — All interactions
+══════════════════════════════════════════ -->
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+'use strict';
+
+/* ─── DOM refs ─── */
+const header      = document.getElementById('header');
+const progressBar = document.getElementById('scrollProgress');
+const hamburger   = document.getElementById('hamburger');
+const nav         = document.getElementById('nav');
+const floatingCta = document.getElementById('floatingCta');
+const toast       = document.getElementById('toast');
+let   toastTimer  = null;
+
+/* ════════════════════════════════════
+   SMOOTH SCROLL — intercept all #links
+════════════════════════════════════ */
+document.addEventListener('click', e => {
+  const link = e.target.closest('a[href^="#"]');
+  if (!link) return;
+  const href   = link.getAttribute('href');
+  if (href === '#') { window.scrollTo({ top: 0, behavior: 'smooth' }); e.preventDefault(); return; }
+  const target = document.querySelector(href);
+  if (!target) return;
+  e.preventDefault();
+  const top = target.getBoundingClientRect().top + window.scrollY - 80; // 80 = header height
+  window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+  // Close mobile nav if open
+  closeNav();
+});
+
+/* ════════════════════════════════════
+   HEADER — scroll effects & progress bar
+════════════════════════════════════ */
+function onScroll() {
+  const scrolled  = window.scrollY;
+  const maxScroll = document.body.scrollHeight - window.innerHeight;
+
+  // Header background
+  header.classList.toggle('scrolled', scrolled > 50);
+
+  // Progress bar (0→1 scaleX)
+  progressBar.style.transform = `scaleX(${maxScroll > 0 ? (scrolled / maxScroll).toFixed(4) : 0})`;
+
+  // Reveal animations
+  revealOnScroll();
+
+  // Active nav link
+  updateActiveLink();
+
+  // Hide floating CTA when contact section is on screen
+  const contactRect = document.getElementById('contact')?.getBoundingClientRect();
+  if (contactRect) {
+    const visible = contactRect.top < window.innerHeight && contactRect.bottom > 0;
+    floatingCta.classList.toggle('hidden', visible);
+  }
+
+  // Count-up trigger
+  maybeStartCounter();
+}
+window.addEventListener('scroll', onScroll, { passive: true });
+
+/* ════════════════════════════════════
+   ACTIVE NAV LINK
+════════════════════════════════════ */
+const sectionIds = ['home', 'accreditations', 'services', 'projects', 'testimonials', 'about', 'contact'];
+
+function updateActiveLink() {
+  let current = 'home';
+  sectionIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top <= 120) current = id;
+  });
+  document.querySelectorAll('nav a[data-section]').forEach(link => {
+    link.classList.toggle('active', link.dataset.section === current);
+  });
+}
+
+/* ════════════════════════════════════
+   MOBILE NAV
+════════════════════════════════════ */
+hamburger.addEventListener('click', () => {
+  const open = nav.classList.toggle('open');
+  hamburger.classList.toggle('open', open);
+  hamburger.setAttribute('aria-expanded', open);
+});
+
+function closeNav() {
+  nav.classList.remove('open');
+  hamburger.classList.remove('open');
+  hamburger.setAttribute('aria-expanded', 'false');
+}
+
+// Close if user clicks outside header
+document.addEventListener('click', e => {
+  if (!header.contains(e.target)) closeNav();
+});
+
+/* ════════════════════════════════════
+   SCROLL REVEAL
+════════════════════════════════════ */
+function revealOnScroll() {
+  const threshold = window.innerHeight * 0.88;
+  document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => {
+    if (el.getBoundingClientRect().top < threshold) el.classList.add('visible');
+  });
+}
+
+/* ════════════════════════════════════
+   SERVICE CARD 3D TILT
+════════════════════════════════════ */
+document.querySelectorAll('.service-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width  - 0.5) * 8;
+    const y = ((e.clientY - r.top)  / r.height - 0.5) * 8;
+    card.style.transform = `translateY(-6px) rotateX(${-y}deg) rotateY(${x}deg)`;
+    card.style.perspective = '600px';
+  });
+  card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+});
+
+/* ════════════════════════════════════
+   STAT COUNTER
+════════════════════════════════════ */
+let counted = false;
+function countUp(el, target, suffix = '') {
+  if (!el) return;
+  let v = 0;
+  const step = target / 55;
+  const timer = setInterval(() => {
+    v = Math.min(v + step, target);
+    el.textContent = Math.floor(v) + suffix;
+    if (v >= target) clearInterval(timer);
+  }, 16);
+}
+function maybeStartCounter() {
+  if (counted) return;
+  const el = document.getElementById('statYears');
+  if (el && el.getBoundingClientRect().top < window.innerHeight) {
+    counted = true;
+    countUp(document.getElementById('statYears'),     12,   '+');
+    countUp(document.getElementById('statCustomers'), 1400, '+');
+  }
+}
+
+/* ════════════════════════════════════
+   TOAST
+════════════════════════════════════ */
+function showToast(msg, type = 'success') {
+  clearTimeout(toastTimer);
+  toast.textContent = msg;
+  toast.className   = 'toast show' + (type === 'error' ? ' toast-error' : '');
+  toastTimer = setTimeout(() => { toast.classList.remove('show'); }, 3500);
+}
+
+/* ════════════════════════════════════
+   FORM VALIDATION & SUBMIT
+════════════════════════════════════ */
+function isValidEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+function isValidPhone(v)  { return /^[\d\s\+\(\)\-]{7,15}$/.test(v.replace(/\s/g, '')); }
+
+/** Validate one field. Returns true if valid. */
+function validate(id, errorId, check) {
+  const el  = document.getElementById(id);
+  const err = document.getElementById(errorId);
+  const bad = !check(el.value.trim());
+  el.classList.toggle('invalid', bad);
+  err.classList.toggle('show', bad);
+  return !bad;
+}
+
+/** Live-clear error styling on input */
+['firstName','lastName','phone','email','service'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', () => {
+    document.getElementById(id).classList.remove('invalid');
+    document.getElementById('err-' + id)?.classList.remove('show');
+  });
+});
+
+function handleFormSubmit() {
+  // Run all validations
+  const checks = [
+    validate('firstName', 'err-firstName', v => v.length > 0),
+    validate('lastName',  'err-lastName',  v => v.length > 0),
+    validate('phone',     'err-phone',     v => isValidPhone(v)),
+    validate('service',   'err-service',   v => v !== ''),
+  ];
+
+  // Email: optional but must be valid format if provided
+  const emailVal = document.getElementById('email').value.trim();
+  if (emailVal) {
+    checks.push(validate('email', 'err-email', v => isValidEmail(v)));
+  }
+
+  if (!checks.every(Boolean)) {
+    showToast('Please fix the highlighted fields', 'error');
+    // Scroll to first invalid field
+    const firstInvalid = document.querySelector('.invalid');
+    if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  // Simulate async submit
+  const btn     = document.getElementById('submitBtn');
+  const btnText = document.getElementById('btnText');
+  btn.disabled  = true;
+  btnText.textContent = 'Sending…';
+
+  setTimeout(() => {
+    document.getElementById('contactForm').style.display  = 'none';
+    document.getElementById('formSuccess').style.display  = 'block';
+    showToast('✅ Request sent! We\'ll be in touch shortly.');
+    btn.disabled        = false;
+    btnText.textContent = 'Send My Request ➜';
+  }, 1100);
+}
+
+function resetForm() {
+  ['firstName','lastName','phone','email','message'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value = ''; el.classList.remove('invalid'); }
+  });
+  const srv = document.getElementById('service');
+  if (srv) { srv.value = ''; srv.classList.remove('invalid'); }
+  document.querySelectorAll('.field-err').forEach(e => e.classList.remove('show'));
+  document.getElementById('formSuccess').style.display = 'none';
+  document.getElementById('contactForm').style.display = 'flex';
+}
+
+/* ═══════════════════�}
+
+/* ════════════════════════════════════
+   GALLERY — Filter tabs
+════════════════════════════════════ */
+(function initGalleryFilters() {
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const items      = document.querySelectorAll('.gallery-item');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed','false'); });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed','true');
+
+      const filter = btn.dataset.filter;
+      items.forEach((item, i) => {
+        const show = filter === 'all' || item.dataset.category === filter;
+        item.classList.toggle('hidden', !show);
+        if (show) {
+          item.classList.remove('revealed');
+          setTimeout(() => item.classList.add('revealed'), i * 60);
+        }
+      });
+    });
+  });
+})();
+
+/* ════════════════════════════════════
+   GALLERY — Scroll reveal (staggered)
+════════════════════════════════════ */
+(function initGalleryReveal() {
+  const items = document.querySelectorAll('.gallery-item');
+  let done = false;
+
+  function checkGallery() {
+    if (done) return;
+    const winH = window.innerHeight;
+    let allIn = true;
+    items.forEach((item, i) => {
+      if (item.getBoundingClientRect().top < winH * 0.93) {
+        setTimeout(() => item.classList.add('revealed'), i * 70);
+      } else {
+        allIn = false;
+      }
+    });
+    if (allIn) { done = true; window.removeEventListener('scroll', checkGallery); }
+  }
+
+  window.addEventListener('scroll', checkGallery, { passive: true });
+  setTimeout(checkGallery, 200);
+})();
+
+/* ════════════════════════════════════
+   LIGHTBOX
+════════════════════════════════════ */
+(function initLightbox() {
+  const lightbox = document.getElementById('lightbox');
+  const lbImg    = document.getElementById('lbImg');
+  const lbTitle  = document.getElementById('lbTitle');
+  const lbDesc   = document.getElementById('lbDesc');
+  const lbClose  = document.getElementById('lbClose');
+  const lbPrev   = document.getElementById('lbPrev');
+  const lbNext   = document.getElementById('lbNext');
+  const lbDots   = document.getElementById('lbDots');
+  if (!lightbox) return;
+
+  let currentIndex = 0;
+
+  function getVisible() {
+    return [...document.querySelectorAll('.gallery-item:not(.hidden)')];
+  }
+
+  function openAt(index) {
+    const items = getVisible();
+    if (!items.length) return;
+    currentIndex = (index + items.length) % items.length;
+    const item = items[currentIndex];
+    const img  = item.querySelector('img');
+    lbImg.src           = img.src.replace(/w=\d+/, 'w=1200');
+    lbImg.alt           = img.alt;
+    lbTitle.textContent = item.dataset.title || '';
+    lbDesc.textContent  = item.dataset.desc  || '';
+    lbDots.innerHTML = '';
+    items.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.className = 'lb-dot' + (i === currentIndex ? ' active' : '');
+      dot.setAttribute('aria-label', 'Image ' + (i + 1));
+      dot.addEventListener('click', () => openAt(i));
+      lbDots.appendChild(dot);
+    });
+    lightbox.classList.add('open');
+    lightbox.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+    lbClose.focus();
+  }
+
+  function close() {
+    lightbox.classList.remove('open');
+    lightbox.setAttribute('aria-hidden','true');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('galleryGrid').addEventListener('click', e => {
+    const card = e.target.closest('.gallery-item');
+    if (!card) return;
+    const idx = getVisible().indexOf(card);
+    if (idx !== -1) openAt(idx);
+  });
+
+  document.getElementById('galleryGrid').addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = e.target.closest('.gallery-item');
+    if (!card) return;
+    e.preventDefault();
+    const idx = getVisible().indexOf(card);
+    if (idx !== -1) openAt(idx);
+  });
+
+  lbClose.addEventListener('click', close);
+  lbPrev.addEventListener('click',  () => openAt(currentIndex - 1));
+  lbNext.addEventListener('click',  () => openAt(currentIndex + 1));
+  lightbox.addEventListener('click', e => { if (e.target === lightbox) close(); });
+
+  document.addEventListener('keydown', e => {
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'Escape')     close();
+    if (e.key === 'ArrowLeft')  openAt(currentIndex - 1);
+    if (e.key === 'ArrowRight') openAt(currentIndex + 1);
+  });
+})();
+
+/* ── Boot ── */
+/* Robust image fallback — if any gallery/about image fails to load,
+   replace it with a styled gradient placeholder so layout never breaks. */
+(function() {
+  const gradients = [
+    'linear-gradient(135deg,#1a2535,#2d4a6e)',
+    'linear-gradient(135deg,#1e2535,#1a3a5c)',
+    'linear-gradient(135deg,#1a2520,#1e4030)',
+    'linear-gradient(135deg,#2d1a1a,#4a2020)',
+    'linear-gradient(135deg,#1e1a35,#2d2060)',
+    'linear-gradient(135deg,#1a2530,#103040)',
+    'linear-gradient(135deg,#252020,#402820)',
+    'linear-gradient(135deg,#202535,#1a2050)',
+  ];
+  const labels = ['🛁','🔧','💧','🔥','🚿','♨️','🪠','⚙️'];
+  let gi = 0;
+
+  document.querySelectorAll('.gallery-item img, .about-img-wrap img').forEach((img, i) => {
+    img.addEventListener('error', function() {
+      const parent = this.closest('.gallery-item') || this.closest('.about-img-wrap');
+      if (!parent) return;
+      this.style.display = 'none';
+      const div = document.createElement('div');
+      div.style.cssText = `
+        width:100%;height:100%;
+        background:${gradients[gi % gradients.length]};
+        display:flex;align-items:center;justify-content:center;
+        flex-direction:column;gap:0.5rem;
+        font-size:3rem;
+      `;
+      div.innerHTML = `<span>${labels[gi % labels.length]}</span>`;
+      parent.insertBefore(div, parent.firstChild);
+      gi++;
+    });
+  });
+})();
+
+revealOnScroll();
+maybeStartCounter();
+updateActiveLink();
+</script>
+</body>
+</html>
